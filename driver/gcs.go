@@ -22,7 +22,7 @@ type GCSDriver struct {
 	Key        string
 }
 
-func (d *GCSDriver) Bump(b version.Bump) (semver.Version, error) {
+func (d *GCSDriver) Bump(b version.Bump, params map[string]interface{}) (semver.Version, error) {
 	versions, err := d.Check(nil)
 
 	if err != nil {

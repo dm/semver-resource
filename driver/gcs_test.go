@@ -48,7 +48,7 @@ var _ = Describe("GCS Driver", func() {
 			It("writes the bumped version of the contents back to the object", func() {
 				s.Body = "2.6.3"
 
-				newV, err := driver.Bump(version.PatchBump{})
+				newV, err := driver.Bump(version.PatchBump{}, nil)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(newV.String()).To(Equal("2.6.4"))
@@ -68,7 +68,7 @@ var _ = Describe("GCS Driver", func() {
 					Patch: 0,
 				}
 
-				newV, err := driver.Bump(version.PatchBump{})
+				newV, err := driver.Bump(version.PatchBump{}, nil)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(newV.String()).To(Equal("0.0.1"))

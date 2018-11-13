@@ -36,6 +36,8 @@ type OutParams struct {
 
 	Bump string `json:"bump"`
 	Pre  string `json:"pre"`
+
+	Repo string `json:"repo"`
 }
 
 type CheckRequest struct {
@@ -69,6 +71,8 @@ type Source struct {
 	File          string `json:"file"`
 	GitUser       string `json:"git_user"`
 	CommitMessage string `json:"commit_message"`
+	Repository    string `json:"repository"`
+	TagPrefix     string `json:"tag_prefix"`
 
 	OpenStack OpenStackOptions `json:"openstack"`
 
@@ -111,6 +115,7 @@ const (
 	DriverUnspecified Driver = ""
 	DriverS3          Driver = "s3"
 	DriverGit         Driver = "git"
+	DriverGitTag      Driver = "git-tag"
 	DriverSwift       Driver = "swift"
 	DriverGCS         Driver = "gcs"
 )

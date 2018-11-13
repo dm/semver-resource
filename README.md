@@ -39,7 +39,7 @@ The `git` driver works by modifying a file in a repository with every bump. The
 
 * `depth`: *Optional.* If a positive integer is given, shallow clone the repository using the --depth option.
 
-* `commit_message`: *Optional.* If specified overides the default commit message with the one provided. The user can use %version% and %file% to get them replaced automatically with the correct values.
+* `commit_message`: *Optional.* If specified overrides the default commit message with the one provided. The user can use %version% and %file% to get them replaced automatically with the correct values.
 
 ### `s3` Driver
 
@@ -88,26 +88,30 @@ with OpenStack. All OpenStack Identity versions are supported through this libra
 Authentication properties will pass through to it. For detailed information about the
 individual parameters, see https://github.com/rackspace/gophercloud/blob/master/auth_options.go
 
-### `gcs` Driver
+### `git-tag` Driver
 
-The `gcs` driver works by modifying a file in a Google Cloud Storage bucket.
+The `git-tag` driver works by tagging commits in a repository with every bump.
+The `git-tag` driver has the advantage of being able to do atomic updates.
 
-* `bucket`: *Required.* The name of the bucket.
+* `uri`: *Required.* The repository URL.
 
-* `key`: *Required.* The key to use for the object in the bucket tracking the version.
+* `private_key`: *Optional.* The SSH private key to use when pulling from/
+   pushing to to the repository.
 
-* `json_key`: *Required.* The contents of your GCP Account JSON Key. Example:
+* `username`: *Optional.* Username for HTTP(S) auth when pulling/pushing.
+   This is needed when only HTTP/HTTPS protocol for git is available (which
+   does not support private key auth) and auth is required.
 
-  ```yaml
-  json_key: |
-    {
-      "private_key_id": "...",
-      "private_key": "...",
-      "client_email": "...",
-      "client_id": "...",
-      "type": "service_account"
-    }
-  ```
+* `password`: *Optional.* Password for HTTP(S) auth when pulling/pushing.
+
+* `git_user`: *Optional.* The git identity to use when pushing to the repository.
+   Supports RFC 5322 address of the form "Gogh Fir \<gf@example.com\>" or "foo@example.com".
+
+* `tag_prefix`: *Optional.* Prefix of the version in the git tag. When set to 'v' the tags
+   will be in the format v1.2.3.
+
+The `git-tag` driver uses annotated tags. On a put, the message is populated with
+details about the build that triggered the bump.
 
 ### Example
 
@@ -149,7 +153,10 @@ plan:
 
 ### `check`: Report the current version number.
 
-Detects new versions by reading the file from the specified source. If the file is empty, it returns the `initial_version`. If the file is not empty, it returns the version specified in the file if it is equal to or greater than current version, otherwise it returns no versions.
+Detects new versions by reading the file or latest tag from the specified source.
+If the file/tag is empty, it returns the `initial_version`. If the file/tag is
+not empty, it returns the version specified in the file/tag if it is equal to or
+greater than current version, otherwise it returns no versions.
 
 ### `in`: Provide the version as a file, optionally bumping it.
 
@@ -194,7 +201,6 @@ if the driver supports it. That is, if we pull down version `N`, and bump to
 because there's some new version `M`, the driver will re-apply the bump to get
 `M+1`, and try again (in a loop).
 
-
 ## Version Bumping Semantics
 
 Both `in` and `out` support bumping the version semantically via two params:
@@ -217,7 +223,7 @@ be one of:
   type, (e.g. `alpha` vs. `beta`), the type is switched and the prerelease
   version is reset to `1`. If the version is *not* already a pre-release, then
   `pre` is added, starting at `1`.
-  
+
   The value of `pre` can be anything you like; the value will be `pre`-pended (_hah_) to a numeric value. For example, `pre: build` will result in a semver of `x.y.z-build.<number>`, `pre: alpha` becomes `x.y.z-alpha.<number>`, and `pre: my-preferred-naming-convention` becomes `x.y.z-my-preferred-naming-convention.<number>`
 
 ### Running the tests

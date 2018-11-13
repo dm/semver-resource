@@ -15,7 +15,7 @@ import (
 )
 
 type Driver interface {
-	Bump(version.Bump) (semver.Version, error)
+	Bump(version.Bump, map[string]interface{}) (semver.Version, error)
 	Set(semver.Version) error
 	Check(*semver.Version) ([]semver.Version, error)
 }
@@ -91,13 +91,31 @@ func FromSource(source models.Source) (Driver, error) {
 		return &GitDriver{
 			InitialVersion: initialVersion,
 
-			URI:           source.URI,
-			Branch:        source.Branch,
-			PrivateKey:    source.PrivateKey,
-			Username:      source.Username,
-			Password:      source.Password,
-			File:          source.File,
-			GitUser:       source.GitUser,
+			PrivateKey: source.PrivateKey,
+			Username:   source.Username,
+			Password:   source.Password,
+			GitUser:    source.GitUser,
+			VersionDriver: &GitFileDriver{
+				URI:    source.URI,
+				Branch: source.Branch,
+				File:   source.File,
+			},
+		}, nil
+
+	case models.DriverGitTag:
+		return &GitDriver{
+			InitialVersion: initialVersion,
+
+			PrivateKey: source.PrivateKey,
+			Username:   source.Username,
+			Password:   source.Password,
+			GitUser:    source.GitUser,
+			VersionDriver: &GitTagDriver{
+				URI:        source.URI,
+				Prefix:     source.TagPrefix,
+				Repository: source.Repository,
+				Branch:     source.Branch,
+			},
 			CommitMessage: source.CommitMessage,
 		}, nil
 
